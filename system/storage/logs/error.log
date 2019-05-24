@@ -1,0 +1,35 @@
+2019-05-22 6:59:34 - PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'dines'@'localhost' (using password: YES) in /Users/dines/Sites/opencart/upload/system/library/db/mysqli.php on line 7
+2019-05-22 6:59:34 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/opencart/upload/system/library/db/mysqli.php on line 10
+2019-05-22 6:59:34 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/opencart/upload/system/library/db/mysqli.php on line 10
+2019-05-22 6:59:34 - PHP Notice:  Undefined variable: mysql in /Users/dines/Sites/opencart/upload/install/controller/install/step_3.php on line 280
+2019-05-22 6:59:34 - PHP Notice:  Trying to get property 'connect_error' of non-object in /Users/dines/Sites/opencart/upload/install/controller/install/step_3.php on line 280
+2019-05-22 7:00:23 - PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'dines'@'localhost' (using password: YES) in /Users/dines/Sites/opencart/upload/system/library/db/mysqli.php on line 7
+2019-05-22 7:00:23 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/opencart/upload/system/library/db/mysqli.php on line 10
+2019-05-22 7:00:23 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/opencart/upload/system/library/db/mysqli.php on line 10
+2019-05-22 7:00:23 - PHP Notice:  Undefined variable: mysql in /Users/dines/Sites/opencart/upload/install/controller/install/step_3.php on line 280
+2019-05-22 7:00:23 - PHP Notice:  Trying to get property 'connect_error' of non-object in /Users/dines/Sites/opencart/upload/install/controller/install/step_3.php on line 280
+2019-05-22 7:06:51 - PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'dines'@'localhost' (using password: YES) in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 7
+2019-05-22 7:06:51 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 10
+2019-05-22 7:06:51 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 10
+2019-05-22 7:06:51 - PHP Notice:  Undefined variable: mysql in /Users/dines/Sites/upload/install/controller/install/step_3.php on line 280
+2019-05-22 7:06:51 - PHP Notice:  Trying to get property 'connect_error' of non-object in /Users/dines/Sites/upload/install/controller/install/step_3.php on line 280
+2019-05-22 7:10:15 - PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'dines'@'localhost' (using password: YES) in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 7
+2019-05-22 7:10:15 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 10
+2019-05-22 7:10:15 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 10
+2019-05-22 7:10:15 - PHP Notice:  Undefined variable: mysql in /Users/dines/Sites/upload/install/controller/install/step_3.php on line 280
+2019-05-22 7:10:15 - PHP Notice:  Trying to get property 'connect_error' of non-object in /Users/dines/Sites/upload/install/controller/install/step_3.php on line 280
+2019-05-22 7:10:27 - PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'dines'@'localhost' (using password: YES) in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 7
+2019-05-22 7:10:27 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 10
+2019-05-22 7:10:27 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 10
+2019-05-22 7:10:27 - PHP Notice:  Undefined variable: mysql in /Users/dines/Sites/upload/install/controller/install/step_3.php on line 280
+2019-05-22 7:10:27 - PHP Notice:  Trying to get property 'connect_error' of non-object in /Users/dines/Sites/upload/install/controller/install/step_3.php on line 280
+2019-05-22 8:36:40 - PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'root'@'localhost' (using password: NO) in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 7
+2019-05-22 8:36:40 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 10
+2019-05-22 8:36:40 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 10
+2019-05-22 8:36:40 - PHP Notice:  Undefined variable: mysql in /Users/dines/Sites/upload/install/controller/install/step_3.php on line 280
+2019-05-22 8:36:40 - PHP Notice:  Trying to get property 'connect_error' of non-object in /Users/dines/Sites/upload/install/controller/install/step_3.php on line 280
+2019-05-22 8:36:51 - PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'mamp'@'localhost' (using password: NO) in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 7
+2019-05-22 8:36:51 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 10
+2019-05-22 8:36:51 - PHP Warning:  DB\MySQLi::__construct(): Couldn't fetch mysqli in /Users/dines/Sites/upload/system/library/db/mysqli.php on line 10
+2019-05-22 8:36:51 - PHP Notice:  Undefined variable: mysql in /Users/dines/Sites/upload/install/controller/install/step_3.php on line 280
+2019-05-22 8:36:51 - PHP Notice:  Trying to get property 'connect_error' of non-object in /Users/dines/Sites/upload/install/controller/install/step_3.php on line 280
