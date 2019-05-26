@@ -38,7 +38,8 @@ class OneLogin_Saml2_Error extends Exception
         assert('is_string($msg)');
         assert('is_int($code)');
 
-        $message = OneLogin_Saml2_Utils::t($msg, $args);
+//        $message = OneLogin_Saml2_Utils::t($msg, $args);
+        $message = $msg;
 
         parent::__construct($message, $code);
     }
@@ -116,7 +117,6 @@ class OneLogin_Saml2_ValidationError extends Exception
 
 //        $message = OneLogin_Saml2_Utils::t($msg, $args);
         $message = $msg;
-
         parent::__construct($message, $code);
     }
 }

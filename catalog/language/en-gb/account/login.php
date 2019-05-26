@@ -11,6 +11,7 @@ $_['text_register_account']        = 'By creating an account you will be able to
 $_['text_returning_customer']      = 'Returning Customer';
 $_['text_i_am_returning_customer'] = 'I am a returning customer';
 $_['text_forgotten']               = 'Forgotten Password';
+$_['text_saml_button']             = 'Login with SAML';
 
 // Entry
 $_['entry_email']                  = 'E-Mail Address';
@@ -20,3 +21,9 @@ $_['entry_password']               = 'Password';
 $_['error_login']                  = 'Warning: No match for E-Mail Address and/or Password.';
 $_['error_attempts']               = 'Warning: Your account has exceeded allowed number of login attempts. Please try again in 1 hour.';
 $_['error_approved']               = 'Warning: Your account requires approval before you can login.';
+
+// SAML Error
+$_['unregistered_saml_user']       = 'Warning: Unregistered user.';
+$_['no_mail_attr']                 = 'Warning: No \'mail\' attribute found in SAML Response.';
+$_['no_saml_response']             = 'Warning: No SAML Response found in response.';
+$_['invalid_saml_response']        = 'Warning: Invalid SAML Response';

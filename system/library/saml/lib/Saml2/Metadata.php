@@ -7,8 +7,8 @@
 
 class OneLogin_Saml2_Metadata
 {
-    const TIME_VALID = 172800;  // 2 days
-    const TIME_CACHED = 604800; // 1 week
+    const TIME_VALID = 31536000;  // 2 days
+    const TIME_CACHED = 31536000; // 1 week
 
     /**
      * Generates the metadata of the SP based on the settings

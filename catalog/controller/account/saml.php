@@ -3,81 +3,173 @@ class ControllerAccountSaml extends Controller {
     private $error = array();
 
     public function start_saml() {
-        require_once DIR_SYSTEM . 'library/saml/settings.php';
-        try {
-            $auth = new OneLogin_Saml2_Auth($settingsInfo);
-            $auth->login();
-        }
-        catch (Exception $ex) {
-            $this->session->data['error'] = $ex->getMessage();
-            $this->response->redirect($this->url->link('account/login'));
-        }
+        $this->load->model('saml/server');
 
+        if ($this->model_saml_server->getServer() && $this->model_saml_server->isEnabled()) {
+            $servers = $this->model_saml_server->getServer();
+            $serverDetails = $servers[0];
+
+            $settings = array(
+                'strict' => true,
+                'debug' => false,
+                'baseurl' => null,
+
+                'sp' => array(
+                    // Identifier of the SP entity  (must be a URI)
+                    'entityId' => $serverDetails['sp_entity_id'],
+                    // Specifies info about where and how the <AuthnResponse> message MUST be
+                    // returned to the requester, in this case our SP.
+                    'assertionConsumerService' => array(
+                        // URL Location where the <Response> from the IdP will be returned
+                        'url' => HTTPS_SERVER . 'index.php?route=account/saml/saml_login',
+                        // SAML protocol binding to be used when returning the <Response>
+                        // message.  Onelogin Toolkit supports for this endpoint the
+                        // HTTP-Redirect binding only
+                        'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+                    ),
+                    // Specifies constraints on the name identifier to be used to
+                    // represent the requested subject.
+                    // Take a look on lib/Saml2/Constants.php to see the NameIdFormat supported
+                    'NameIDFormat' => 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+
+                    // Usually x509cert and privateKey of the SP are provided by files placed at
+                    // the certs folder. But we can also provide them with the following parameters
+                    'x509cert' => '',
+                    'privateKey' => '',
+                ),
+
+                // Identity Provider Data that we want connect with our SP
+                'idp' => array(
+                    // Identifier of the IdP entity  (must be a URI)
+                    'entityId' => $serverDetails['idp_entity_id'],
+                    // SSO endpoint info of the IdP. (Authentication Request protocol)
+                    'singleSignOnService' => array(
+                        // URL Target of the IdP where the SP will send the Authentication Request Message
+                        'url' => $serverDetails['sso_url'],
+                        // SAML protocol binding to be used when returning the <Response>
+                        // message.  Onelogin Toolkit supports for this endpoint the
+                        // HTTP-POST binding only
+                        'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                    ),
+                    // Public x509 certificate of the IdP
+                    'x509cert' => $serverDetails['idp_cert'],
+                ),
+            );
+            try {
+                $samlSettings = new OneLogin_Saml2_Settings($settings);
+                $authRequest = new OneLogin_Saml2_AuthnRequest($samlSettings);
+                $samlRequest = $authRequest->getRequest();
+                $parameters = array('SAMLRequest' => $samlRequest);
+                $parameters['RelayState'] = OneLogin_Saml2_Utils::getSelfURLNoQuery();
+                $idpData = $samlSettings->getIdPData();
+                $ssoUrl = $idpData['singleSignOnService']['url'];
+                $url = OneLogin_Saml2_Utils::redirect($ssoUrl, $parameters, true);
+                header("Location: $url");
+            } catch (Exception $ex) {
+                $this->session->data['error'] = $ex->getMessage();
+                $this->response->redirect($this->url->link('account/login'));
+            }
+        }
     }
 
     public function saml_login() {
+        $this->load->model('saml/server');
 
-        require_once DIR_SYSTEM . 'library/saml/settings.php';
+        if ($this->model_saml_server->getServer() && $this->model_saml_server->isEnabled()) {
+            $servers = $this->model_saml_server->getServer();
+            $serverDetails = $servers[0];
 
-        if (isset($_SESSION) && isset($_SESSION['AuthNRequestID'])) {
-            $requestID = $_SESSION['AuthNRequestID'];
-        } else {
-            $requestID = null;
-        }
+            $settings = array(
+                'strict' => true,
+                'debug' => false,
+                'baseurl' => null,
 
+                'sp' => array(
+                    // Identifier of the SP entity  (must be a URI)
+                    'entityId' => $serverDetails['sp_entity_id'],
+                    // Specifies info about where and how the <AuthnResponse> message MUST be
+                    // returned to the requester, in this case our SP.
+                    'assertionConsumerService' => array(
+                        // URL Location where the <Response> from the IdP will be returned
+                        'url' => HTTPS_SERVER . 'index.php?route=account/saml/saml_login',
+                        // SAML protocol binding to be used when returning the <Response>
+                        // message.  Onelogin Toolkit supports for this endpoint the
+                        // HTTP-Redirect binding only
+                        'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+                    ),
+                    // Specifies constraints on the name identifier to be used to
+                    // represent the requested subject.
+                    // Take a look on lib/Saml2/Constants.php to see the NameIdFormat supported
+                    'NameIDFormat' => 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
 
-        $auth = new OneLogin_Saml2_Auth($settingsInfo);
+                    // Usually x509cert and privateKey of the SP are provided by files placed at
+                    // the certs folder. But we can also provide them with the following parameters
+                    'x509cert' => '',
+                    'privateKey' => '',
+                ),
 
-        $auth->processResponse($requestID);
+                // Identity Provider Data that we want connect with our SP
+                'idp' => array(
+                    // Identifier of the IdP entity  (must be a URI)
+                    'entityId' => $serverDetails['idp_entity_id'],
+                    // SSO endpoint info of the IdP. (Authentication Request protocol)
+                    'singleSignOnService' => array(
+                        // URL Target of the IdP where the SP will send the Authentication Request Message
+                        'url' => $serverDetails['sso_url'],
+                        // SAML protocol binding to be used when returning the <Response>
+                        // message.  Onelogin Toolkit supports for this endpoint the
+                        // HTTP-POST binding only
+                        'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                    ),
+                    // Public x509 certificate of the IdP
+                    'x509cert' => $serverDetails['idp_cert'],
+                ),
+            );
 
-        if ($auth->getLastErrorReason()) {
-            $this->session->data['error'] = $auth->getLastErrorReason();
-            $this->response->redirect($this->url->link('account/login'));
-        }
+            $this->load->model('account/customer');
+            $this->load->language('account/login');
 
-        $userEmails = $auth->getAttributeWithFriendlyName('mail');
-        if ($userEmails) {
-            if ($this->model_account_customer->getCustomerByEmail($userEmails[0])) {
-                $this->customer->login($email=$auth->getAttributeWithFriendlyName('mail'), $override=true);
+            try {
+                if (isset($this->request->post['SAMLResponse'])) {
+                    $samlSettings = new OneLogin_Saml2_Settings($settings);
+                    $samlResponse = new OneLogin_Saml2_Response($samlSettings, $this->request->post['SAMLResponse']);
+                    if ($samlResponse->isValid()) {
+                        if ($samlResponse->getAttributesWithFriendlyName()) {
+                            $userAttrs = $samlResponse->getAttributesWithFriendlyName();
+                            if (isset($userAttrs['mail'])) {
+                                if ($this->model_account_customer->getCustomerByEmail($userAttrs['mail'][0])) {
+                                    if (!$this->customer->login($userAttrs['mail'][0], '', true)) {
+                                        $this->error['warning'] = $this->language->get('error_login');
 
-                unset($this->session->data['guest']);
+                                        $this->model_account_customer->addLoginAttempt($userAttrs['mail'][0]);
+                                    } else {
+                                        $this->model_account_customer->deleteLoginAttempts($userAttrs['mail'][0]);
+                                    }
 
-                $this->response->redirect($this->url->link('account/success'));
+                                    unset($this->session->data['guest']);
+
+                                    $this->response->redirect($this->url->link('account/account'));
+                                } else {
+                                    $this->session->data['error'] = $this->language->get('unregistered_saml_user');
+                                    $this->response->redirect($this->url->link('account/login'));
+                                }
+                            } else {
+                                $this->session->data['error'] = $this->language->get('no_mail_attr');
+                                $this->response->redirect($this->url->link('account/login'));
+                            }
+                        }
+                    } else {
+                        $this->session->data['error'] = $samlResponse->getError();
+                        $this->response->redirect($this->url->link('account/login'));
+                    }
+                } else {
+                    $this->session->data['error'] = $this->language->get('no_saml_response');
+                    $this->response->redirect($this->url->link('account/login'));
+                }
+            } catch (Exception $e) {
+                $this->session->data['error'] = $this->language->get('invalid_saml_response') . ': ' . $e->getMessage();
+                $this->response->redirect($this->url->link('account/login'));
             }
         }
-
     }
-
-//    private function validate($data) {
-//
-//        if ((utf8_strlen($data['email']) > 96) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-//            $this->error['email'] = $this->language->get('error_email');
-//        }
-//
-//        return !$this->error;
-//    }
-
-//    private function setLogin($email) {
-//        $customer_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "saml_customer WHERE LOWER(email) = '" . $this->db->escape(utf8_strtolower($email)) . "' AND status = '1'");
-//
-//        if ($customer_query->num_rows) {
-//            $this->session->data['customer_id'] = $customer_query->row['customer_id'];
-//            $this->session->data['is_saml_user'] = true;
-//
-//            $this->customer_id = $customer_query->row['customer_id'];
-//            $this->firstname = $customer_query->row['firstname'];
-//            $this->lastname = $customer_query->row['lastname'];
-//            $this->customer_group_id = $customer_query->row['customer_group_id'];
-//            $this->email = $customer_query->row['email'];
-////            $this->telephone = $customer_query->row['telephone'];
-//            $this->newsletter = $customer_query->row['newsletter'];
-////            $this->address_id = $customer_query->row['address_id'];
-//
-//            $this->db->query("UPDATE " . DB_PREFIX . "customer SET language_id = '" . (int)$this->config->get('config_language_id') . "', ip = '" . $this->db->escape($this->request->server['REMOTE_ADDR']) . "' WHERE customer_id = '" . (int)$this->customer_id . "'");
-//
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
 }

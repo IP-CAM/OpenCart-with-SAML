@@ -44,7 +44,9 @@
               <input type="submit" value="{{ button_login }}" class="btn btn-primary" />
               <br>
               <br>
-              <a href="http://localhost:8888/upload/index.php?route=account/saml/start_saml" class="btn btn-primary">Login with SAML</a>
+              {% if show_saml_button %}
+                <a href="{{ initiate_saml_url }}" class="btn btn-primary">{{ text_saml_button }}</a>
+              {% endif %}
               {% if redirect %}
               <input type="hidden" name="redirect" value="{{ redirect }}" />
               {% endif %}

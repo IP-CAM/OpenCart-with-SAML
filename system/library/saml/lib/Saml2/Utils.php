@@ -79,7 +79,7 @@ class OneLogin_Saml2_Utils
      *
      * @throws Exception
      */
-    public static function xloadXML($dom, $xml)
+    public static function loadXML($dom, $xml)
     {
         assert('$dom instanceof DOMDocument');
         assert('is_string($xml)');

@@ -1,0 +1,102 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <button type="submit" form="form-total" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+                <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% if success %}
+            <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}</div>
+        {% endif %}
+        {% if error_warning %}
+            <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        {% endif %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+            </div>
+            <div class="panel-body">
+                <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-total" class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                        <div class="col-sm-10">
+                            <select name="enabled" id="input-status" class="form-control">
+                                {% if enabled %}
+                                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                                    <option value="0">{{ text_disabled }}</option>
+                                {% else %}
+                                    <option value="1">{{ text_enabled }}</option>
+                                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="col-sm-12" style="text-align: right;">Service Provider's (OpenCart) Information</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-sort-order">Issuer (EntityID)</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="sp_entity_id" value="{{ sp_entity_id }}" placeholder="https://sp.example.org" class="form-control" />
+                            {% if error_sp_entity_id %}
+                                <div class="text-danger">{{ error_sp_entity_id }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-status">ACS (Consumer) URL</label>
+                        <div class="col-sm-10">
+                            <input disabled type="text" name="acs_url" value="{{ acs_url }}" class="form-control"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="col-sm-12" style="text-align: right;">Identity Provider's Information</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-sort-order">Issuer (EntityID)</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="idp_entity_id" value="{{ idp_entity_id }}" placeholder="https://idp.example.org" class="form-control" />
+                            {% if error_idp_entity_id %}
+                                <div class="text-danger">{{ error_idp_entity_id }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-status">SSO Endpoint URL</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="sso_url" value="{{ sso_url }}" placeholder="https://idp.example.org/saml/sso" class="form-control"/>
+                            {% if error_sso_url %}
+                                <div class="text-danger">{{ error_sso_url }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-status">x.509 Certificate</label>
+                        <div class="col-sm-10">
+                            <textarea style="height: 250px;overflow: hidden;" name="idp_cert" class="form-control">{{ idp_cert }}</textarea>
+                            {% if error_sso_url %}
+                                <div class="text-danger">{{ error_idp_cert }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{{ footer }}

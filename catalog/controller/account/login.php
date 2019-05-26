@@ -146,6 +146,15 @@ class ControllerAccountLogin extends Controller {
             $data['password'] = '';
         }
 
+        // for SAML
+        $this->load->model('setting/extension');
+        $this->load->model('saml/server');
+
+        $extensions = $this->model_setting_extension->getInstalled('authentication');
+
+        $data['show_saml_button'] = in_array('saml', $extensions) && $this->model_saml_server->getServer() && $this->model_saml_server->isEnabled();
+        $data['initiate_saml_url'] = $this->url->link('account/saml/start_saml');
+
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['column_right'] = $this->load->controller('common/column_right');
         $data['content_top'] = $this->load->controller('common/content_top');
