@@ -15,6 +15,19 @@ class ControllerExtensionExtensionAuthentication extends Controller {
 
         $this->load->model('setting/extension');
 
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "saml_server`");
+
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "saml_server` (
+                             `id` INT(11) NOT NULL AUTO_INCREMENT,
+                             `sp_entity_id` VARCHAR(300) NOT NULL,
+                             `idp_entity_id` VARCHAR(300) NOT NULL,
+                             `sso_url` VARCHAR(300) NOT NULL,
+                             `idp_cert` VARCHAR(3000) NOT NULL,
+                             `enabled` INT(10) NOT NULL DEFAULT '0',
+                             `date_added` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                             PRIMARY KEY (`id`)
+                            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;");
+
         if ($this->validate()) {
             $this->model_setting_extension->install('authentication', $this->request->get['extension']);
 
@@ -41,6 +54,8 @@ class ControllerExtensionExtensionAuthentication extends Controller {
 
         $this->load->model('setting/extension');
 
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "saml_server`");
+
         if ($this->validate()) {
             $this->model_setting_extension->uninstall('authentication', $this->request->get['extension']);
 
@@ -54,7 +69,6 @@ class ControllerExtensionExtensionAuthentication extends Controller {
     }
 
     protected function getList() {
-        $this->load->model('saml/server');
 
         if (isset($this->error['warning'])) {
             $data['error_warning'] = $this->error['warning'];
@@ -89,6 +103,17 @@ class ControllerExtensionExtensionAuthentication extends Controller {
             foreach ($files as $file) {
                 $extension = basename($file, '.php');
 
+                $dbutton = false;
+                $status = false;
+
+                $res = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "saml_server'");
+                if ((boolean) $res->num_rows) {
+                    $this->load->model('saml/server');
+
+                    $dbutton = in_array($extension, $extensions) && $this->model_saml_server->getServer() && $this->model_saml_server->isEnabled();
+                    $status = $this->model_saml_server->isEnabled();
+                }
+
                 // Compatibility code for old extension folders
                 $this->load->language('extension/authentication/' . $extension, 'extension');
 
@@ -98,8 +123,8 @@ class ControllerExtensionExtensionAuthentication extends Controller {
                     'install'   => $this->url->link('extension/extension/authentication/install', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension, true),
                     'uninstall' => $this->url->link('extension/extension/authentication/uninstall', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension, true),
                     'installed' => in_array($extension, $extensions),
-                    'dbutton'   => in_array('saml', $extensions) && $this->model_saml_server->getServer() && $this->model_saml_server->isEnabled(),
-                    'status'    => $this->model_saml_server->isEnabled(),
+                    'dbutton'   => $dbutton,
+                    'status'    => $status,
                     'edit'       => $this->url->link('extension/authentication/' . $extension, 'user_token=' . $this->session->data['user_token'], true)
                 );
             }

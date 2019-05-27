@@ -89,11 +89,7 @@ class ControllerExtensionAuthenticationSaml extends Controller {
         $data['footer'] = $this->load->controller('common/footer');
 
         $httpReferrer = parse_url($this->request->server['HTTP_REFERER']);
-        if (!in_array(!$httpReferrer['port'], array(80, 443))) {
-            $data['acs_url'] = $httpReferrer['scheme'] . '://' . $httpReferrer['host'] . ':' . $httpReferrer['port'] . '/index.php?route=account/saml/saml_login';
-        } else {
-            $data['acs_url'] = $httpReferrer['scheme'] . '://' . $httpReferrer['host'] . '/index.php?route=account/saml/saml_login';
-        }
+        $data['acs_url'] = $httpReferrer['scheme'] . '://' . $httpReferrer['host'] . '/index.php?route=account/saml/saml_login';
         $editData = $serverDetails ? $serverDetails[0] : array();
         $data = array_merge($data, $editData);
 
