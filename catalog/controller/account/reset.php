@@ -22,7 +22,7 @@ class ControllerAccountReset extends Controller {
 
 			$this->document->setTitle($this->language->get('heading_title'));
 
-			if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+			if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate() && $this->modifyLdapPassword($customer_info)) {
 				$this->model_account_customer->editPassword($customer_info['email'], $this->request->post['password']);
 
 				$this->session->data['success'] = $this->language->get('text_success');
@@ -103,4 +103,34 @@ class ControllerAccountReset extends Controller {
 
 		return !$this->error;
 	}
+
+    private function modifyLdapPassword($customer) {
+        $password = htmlspecialchars($this->request->post['password']);
+        $cn = $customer['firstname'] . ' ' . $customer['lastname'];
+        $ds = @ldap_connect('159.203.4.189');
+        if ($ds) {
+            @ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+            $bind = @ldap_bind($ds, "cn=admin,dc=test,dc=local", "password");
+            if ($bind) {
+                $info['userpassword'] = '{MD5}' . base64_encode(md5( $password,TRUE));
+                $res = @ldap_modify($ds, "cn=$cn,ou=people,dc=test,dc=local", $info);
+                if ($res) {
+                    $search = @ldap_search($ds, "dc=test,dc=local", "cn=$cn");
+                    if ($search) {
+                        @ldap_close($ds);
+                        return true;
+                    }
+                } else {
+                    $this->log->write(ldap_error($ds));
+                    return true;
+                }
+            }
+            $this->error['warning'] = $this->language->get('error_ldap') . ldap_error($ds);
+            @ldap_close($ds);
+            return false;
+        } else {
+            $this->error['warning'] = $this->language->get('error_ldap_server');
+            return false;
+        }
+    }
 }

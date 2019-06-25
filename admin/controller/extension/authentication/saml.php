@@ -63,6 +63,12 @@ class ControllerExtensionAuthenticationSaml extends Controller {
             $data['error_sso_url'] = '';
         }
 
+        if (isset($this->error['slo_url'])) {
+            $data['error_slo_url'] = $this->error['slo_url'];
+        } else {
+            $data['error_slo_url'] = '';
+        }
+
         $data['breadcrumbs'] = array();
 
         $data['breadcrumbs'][] = array(
@@ -127,6 +133,14 @@ class ControllerExtensionAuthenticationSaml extends Controller {
                         // HTTP-Redirect binding only
                         'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
                     ),
+                    'singleLogoutService' => array (
+                        // URL Location of the IdP where the SP will send the SLO Request
+                        'url' => $host[0] . 'index.php?route=common/home',
+                        // SAML protocol binding to be used when returning the <Response>
+                        // message.  Onelogin Toolkit supports for this endpoint the
+                        // HTTP-Redirect binding only
+                        'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                    ),
                     // Specifies constraints on the name identifier to be used to
                     // represent the requested subject.
                     // Take a look on lib/Saml2/Constants.php to see the NameIdFormat supported
@@ -149,6 +163,14 @@ class ControllerExtensionAuthenticationSaml extends Controller {
                         // SAML protocol binding to be used when returning the <Response>
                         // message.  Onelogin Toolkit supports for this endpoint the
                         // HTTP-POST binding only
+                        'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                    ),
+                    'singleLogoutService' => array (
+                        // URL Location of the IdP where the SP will send the SLO Request
+                        'url' => $serverDetails['slo_url'],
+                        // SAML protocol binding to be used when returning the <Response>
+                        // message.  Onelogin Toolkit supports for this endpoint the
+                        // HTTP-Redirect binding only
                         'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
                     ),
                     // Public x509 certificate of the IdP
@@ -184,6 +206,10 @@ class ControllerExtensionAuthenticationSaml extends Controller {
 
         if ((utf8_strlen($this->request->post['sso_url']) > 96) || !filter_var($this->request->post['sso_url'], FILTER_VALIDATE_URL)) {
             $this->error['sso_url'] = $this->language->get('error_sso_url');
+        }
+
+        if ((utf8_strlen($this->request->post['slo_url']) > 96) || !filter_var($this->request->post['slo_url'], FILTER_VALIDATE_URL)) {
+            $this->error['slo_url'] = $this->language->get('error_slo_url');
         }
 
         return !$this->error;

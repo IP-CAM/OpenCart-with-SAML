@@ -61,4 +61,28 @@ class ControllerCheckoutSuccess extends Controller {
 
 		$this->response->setOutput($this->load->view('common/success', $data));
 	}
+
+    protected function api(){
+        $curl = curl_init();
+
+        curl_setopt($curl, CURLOPT_POST, 1);
+
+        // acquire the email and course_id (product_id)
+        $data = array(
+            'email' => 'test@example.com',
+            'course_id' => 'test'
+        );
+
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        // Change this url to the url of the API endpoint from enrolling into the course
+        $url = 'https://jsonplaceholder.typicode.com/todos/1';
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+        $result = curl_exec($curl);
+
+        curl_close($curl);
+        return $result;
+    }
 }

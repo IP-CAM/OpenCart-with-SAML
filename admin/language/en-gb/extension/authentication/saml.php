@@ -15,6 +15,7 @@ $_['entry_status']                 = 'Status';
 // Error
 $_['error_permission']             = 'Warning: You do not have permission to modify SAML Server Configuration!';
 $_['error_sso_url']                = 'Warning: SSO Endpoint URL is invalid!';
+$_['error_slo_url']                = 'Warning: SLO Endpoint URL is invalid!';
 $_['error_idp_entity_id']          = 'Warning: EntityID of Identity Provider is invalid!';
 $_['error_sp_entity_id']           = 'Warning: EntityID of Service Provider is invalid!';
 $_['error_idp_cert']               = 'Warning: x.509 Certificate of Identity Provider is invalid!';

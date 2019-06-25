@@ -20,7 +20,7 @@ class ControllerAccountEdit extends Controller {
 
         $this->load->model('account/customer');
 
-        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate() && $this->modifyLdapUser()) {
 
             $this->model_account_customer->editCustomer($this->customer->getId(), $this->request->post);
 
@@ -194,5 +194,46 @@ class ControllerAccountEdit extends Controller {
         }
 
         return !$this->error;
+    }
+
+    public function modifyLdapUser() {
+        $mail = htmlspecialchars($this->request->post['email']);
+        $givenName = htmlspecialchars($this->request->post['firstname']);
+        $surname = htmlspecialchars($this->request->post['lastname']);
+        $newCn = $givenName . ' ' . $surname;
+        $cn = $this->customer->getFirstName() . ' ' . $this->customer->getLastName();
+        $telephoneNumber = htmlspecialchars($this->request->post['telephone']);
+        $ds = @ldap_connect('159.203.4.189');
+        if ($ds) {
+            @ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+            $bind = @ldap_bind($ds, "cn=admin,dc=test,dc=local", "password");
+            if ($bind) {
+                $info['givenName'] = $givenName;
+                $info['sn'] = $surname;
+                $info['mail'] = $mail;
+                $info['uid'] = $mail;
+                $info['telephoneNumber'] = $telephoneNumber;
+                $res = @ldap_modify($ds, "cn=$cn,ou=people,dc=test,dc=local", $info);
+                if ($res) {
+                    $res_dn = @ldap_rename($ds, "cn=$cn,ou=people,dc=test,dc=local", "cn=$newCn", "ou=people,dc=test,dc=local", true);
+                    if ($res_dn) {
+                        $search = @ldap_search($ds, "dc=test,dc=local", "cn=$newCn");
+                        if ($search) {
+                            @ldap_close($ds);
+                            return true;
+                        }
+                    }
+                } else {
+                    $this->log->write(ldap_error($ds));
+                    return true;
+                }
+            }
+            $this->error['warning'] = $this->language->get('error_ldap') . ldap_error($ds);
+            @ldap_close($ds);
+            return false;
+        } else {
+            $this->error['warning'] = $this->language->get('error_ldap_server');
+            return false;
+        }
     }
 }

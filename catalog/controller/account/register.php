@@ -18,7 +18,7 @@ class ControllerAccountRegister extends Controller {
 
 		$this->load->model('account/customer');
 
-		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate() && $this->createLdapUser()) {
 			$customer_id = $this->model_account_customer->addCustomer($this->request->post);
 
 			// Clear any previous login attempts for unregistered accounts.
@@ -315,4 +315,44 @@ class ControllerAccountRegister extends Controller {
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
+
+	public function createLdapUser() {
+        $mail = htmlspecialchars($this->request->post['email']);
+        $givenName = htmlspecialchars($this->request->post['firstname']);
+        $surname = htmlspecialchars($this->request->post['lastname']);
+        $cn = $givenName . ' ' . $surname;
+        $telephoneNumber = htmlspecialchars($this->request->post['telephone']);
+        $password = htmlspecialchars($this->request->post['password']);
+        $ds = @ldap_connect('159.203.4.189');
+        if ($ds) {
+            @ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+            $bind = @ldap_bind($ds, "cn=admin,dc=test,dc=local", "password");
+            if ($bind) {
+                $info['cn'] = $cn;
+                $info['givenName'] = $givenName;
+                $info['sn'] = $surname;
+                $info['uid'] = $mail;
+                $info['userpassword'] = '{MD5}' . base64_encode(md5( $password,TRUE));
+                $info['objectclass'][0] = 'top';
+                $info['objectclass'][1] = 'person';
+                $info['objectclass'][2] = 'inetOrgPerson';
+                $info['mail'] = $mail;
+                $info['telephoneNumber'] = $telephoneNumber;
+                $res = @ldap_add($ds, "cn=$cn,ou=people,dc=test,dc=local", $info);
+                if ($res) {
+                    $search = @ldap_search($ds, "dc=test,dc=local", "cn=$cn");
+                    if ($search) {
+                        @ldap_close($ds);
+                        return true;
+                    }
+                }
+            }
+            $this->error['warning'] = $this->language->get('error_ldap') . ldap_error($ds);
+            @ldap_close($ds);
+            return false;
+        } else {
+            $this->error['warning'] = $this->language->get('error_ldap_server');
+            return false;
+        }
+    }
 }

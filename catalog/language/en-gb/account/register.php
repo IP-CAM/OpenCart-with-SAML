@@ -31,3 +31,5 @@ $_['error_custom_field']   = '%s required!';
 $_['error_password']       = 'Password must be between 4 and 20 characters!';
 $_['error_confirm']        = 'Password confirmation does not match password!';
 $_['error_agree']          = 'Warning: You must agree to the %s!';
+$_['error_ldap']           = 'LDAP Error:';
+$_['error_ldap_server']    = 'LDAP Error: Could not connect to the LDAP server.';

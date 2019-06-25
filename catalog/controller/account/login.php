@@ -146,7 +146,7 @@ class ControllerAccountLogin extends Controller {
             $data['password'] = '';
         }
 
-        // for SAML
+        // Start SAML added part
         $this->load->model('setting/extension');
 
         $data['show_saml_button'] = false;
@@ -158,6 +158,10 @@ class ControllerAccountLogin extends Controller {
 
             $data['show_saml_button'] = in_array('saml', $extensions) && $this->model_saml_server->getServer() && $this->model_saml_server->isEnabled();
         }
+
+        $data['initiate_saml_url'] = $this->url->link('account/saml/start_saml');
+        // End SAML Added part
+
 
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['column_right'] = $this->load->controller('common/column_right');

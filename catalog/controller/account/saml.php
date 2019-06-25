@@ -51,20 +51,21 @@ class ControllerAccountSaml extends Controller {
                         // HTTP-POST binding only
                         'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
                     ),
+                    'singleLogoutService' => array (
+                        // URL Location of the IdP where the SP will send the SLO Request
+                        'url' => $serverDetails['slo_url'],
+                        // SAML protocol binding to be used when returning the <Response>
+                        // message.  Onelogin Toolkit supports for this endpoint the
+                        // HTTP-Redirect binding only
+                        'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                    ),
                     // Public x509 certificate of the IdP
                     'x509cert' => $serverDetails['idp_cert'],
                 ),
             );
             try {
-                $samlSettings = new OneLogin_Saml2_Settings($settings);
-                $authRequest = new OneLogin_Saml2_AuthnRequest($samlSettings);
-                $samlRequest = $authRequest->getRequest();
-                $parameters = array('SAMLRequest' => $samlRequest);
-                $parameters['RelayState'] = OneLogin_Saml2_Utils::getSelfURLNoQuery();
-                $idpData = $samlSettings->getIdPData();
-                $ssoUrl = $idpData['singleSignOnService']['url'];
-                $url = OneLogin_Saml2_Utils::redirect($ssoUrl, $parameters, true);
-                header("Location: $url");
+                $auth = new OneLogin_Saml2_Auth($settings);
+                $auth->login();
             } catch (Exception $ex) {
                 $this->session->data['error'] = $ex->getMessage();
                 $this->response->redirect($this->url->link('account/login'));
@@ -78,6 +79,9 @@ class ControllerAccountSaml extends Controller {
         if ($this->model_saml_server->getServer() && $this->model_saml_server->isEnabled()) {
             $servers = $this->model_saml_server->getServer();
             $serverDetails = $servers[0];
+
+            $this->load->model('account/customer');
+            $this->load->language('account/login');
 
             $settings = array(
                 'strict' => true,
@@ -121,53 +125,62 @@ class ControllerAccountSaml extends Controller {
                         // HTTP-POST binding only
                         'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
                     ),
+                    'singleLogoutService' => array (
+                        // URL Location of the IdP where the SP will send the SLO Request
+                        'url' => $serverDetails['slo_url'],
+                        // SAML protocol binding to be used when returning the <Response>
+                        // message.  Onelogin Toolkit supports for this endpoint the
+                        // HTTP-Redirect binding only
+                        'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                    ),
                     // Public x509 certificate of the IdP
                     'x509cert' => $serverDetails['idp_cert'],
                 ),
             );
 
-            $this->load->model('account/customer');
-            $this->load->language('account/login');
+            $auth = new OneLogin_Saml2_Auth($settings);
 
             try {
-                if (isset($this->request->post['SAMLResponse'])) {
-                    $samlSettings = new OneLogin_Saml2_Settings($settings);
-                    $samlResponse = new OneLogin_Saml2_Response($samlSettings, $this->request->post['SAMLResponse']);
-                    if ($samlResponse->isValid()) {
-                        if ($samlResponse->getAttributesWithFriendlyName()) {
-                            $userAttrs = $samlResponse->getAttributesWithFriendlyName();
-                            if (isset($userAttrs['mail'])) {
-                                if ($this->model_account_customer->getCustomerByEmail($userAttrs['mail'][0])) {
-                                    if (!$this->customer->login($userAttrs['mail'][0], '', true)) {
-                                        $this->error['warning'] = $this->language->get('error_login');
+                $auth->processResponse();
+                $errors = $auth->getErrors();
 
-                                        $this->model_account_customer->addLoginAttempt($userAttrs['mail'][0]);
-                                    } else {
-                                        $this->model_account_customer->deleteLoginAttempts($userAttrs['mail'][0]);
-                                    }
+                if (!empty($errors)) {
+                    throw new Exception(implode(', ', $errors));
+                }
+                if (!$auth->isAuthenticated()) {
+                    throw new Exception();
+                }
 
-                                    unset($this->session->data['guest']);
+                $this->session->data['samlNameId'] = $auth->getNameId();
+                $this->session->data['samlNameIdFormat'] = $auth->getNameIdFormat();
+                $this->session->data['samlSessionIndex'] = $auth->getSessionIndex();
+                $this->session->data['nameidNameQualifier'] = $auth->getNameIdNameQualifier();
+                if ($auth->getAttributesWithFriendlyName()) {
+                    $userAttrs = $auth->getAttributesWithFriendlyName();
+                    if (isset($userAttrs['mail'])) {
+                        if ($this->model_account_customer->getCustomerByEmail($userAttrs['mail'][0])) {
+                            if (!$this->customer->login($userAttrs['mail'][0], '', true)) {
+                                $this->error['warning'] = $this->language->get('error_login');
 
-                                    $this->response->redirect($this->url->link('account/account'));
-                                } else {
-                                    $this->session->data['error'] = $this->language->get('unregistered_saml_user');
-                                    $this->response->redirect($this->url->link('account/login'));
-                                }
+                                $this->model_account_customer->addLoginAttempt($userAttrs['mail'][0]);
                             } else {
-                                $this->session->data['error'] = $this->language->get('no_mail_attr');
-                                $this->response->redirect($this->url->link('account/login'));
+                                $this->model_account_customer->deleteLoginAttempts($userAttrs['mail'][0]);
                             }
+
+                            unset($this->session->data['guest']);
+
+                            $this->response->redirect($this->url->link('account/account'));
+                        } else {
+                            throw new Exception($this->language->get('unregistered_saml_user'));
                         }
                     } else {
-                        $this->session->data['error'] = $samlResponse->getError();
-                        $this->response->redirect($this->url->link('account/login'));
+                        throw new Exception($this->language->get('no_mail_attr'));
                     }
                 } else {
-                    $this->session->data['error'] = $this->language->get('no_saml_response');
-                    $this->response->redirect($this->url->link('account/login'));
+                    throw new Exception('No user attributes in the response');
                 }
             } catch (Exception $e) {
-                $this->session->data['error'] = $this->language->get('invalid_saml_response') . ': ' . $e->getMessage();
+                $this->session->data['error'] = $e->getMessage();
                 $this->response->redirect($this->url->link('account/login'));
             }
         }

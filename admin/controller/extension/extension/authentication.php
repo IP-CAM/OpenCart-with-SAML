@@ -22,6 +22,7 @@ class ControllerExtensionExtensionAuthentication extends Controller {
                              `sp_entity_id` VARCHAR(300) NOT NULL,
                              `idp_entity_id` VARCHAR(300) NOT NULL,
                              `sso_url` VARCHAR(300) NOT NULL,
+                             `slo_url` VARCHAR(300) NOT NULL,
                              `idp_cert` VARCHAR(3000) NOT NULL,
                              `enabled` INT(10) NOT NULL DEFAULT '0',
                              `date_added` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
